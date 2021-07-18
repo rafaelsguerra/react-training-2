@@ -1,4 +1,22 @@
-import { useState } from "react";
+import { useReducer } from "react";
+
+const initialInputState = {
+  value: "",
+  isTouched: false
+}
+
+const inputStateReducer = (state, action) => {
+  if (action.type === "INPUT") {
+    return { value: action.value, isTouched: state.isTouched };
+  }
+  if (action.type === "BLUR") {
+    return { value: state.value, isTouched: true };
+  }
+  if (action.type === "RESET") {
+    return { value: "", isTouched: false };
+  }
+  return inputStateReducer;
+}
 
 /**
  * Hook cotaining input logic
@@ -6,18 +24,17 @@ import { useState } from "react";
  * @returns 
  */
 const useInput = (validateValue) => {
-  const [enteredValue, setEnteredValue] = useState("");
-  const [isTouched, setIsTouched] = useState(false);
+  const [inputState, dispatch] = useReducer(inputStateReducer, initialInputState)
 
-  const valueIsValid = validateValue(enteredValue)
-  const hasError = !valueIsValid && isTouched;
+  const valueIsValid = validateValue(inputState.value)
+  const hasError = !valueIsValid && inputState.isTouched;
 
   /**
    * Set a new value to the input value state
    * @param {Event} event 
    */
   const handleValueChange = (event) => {
-    setEnteredValue(event.target.value);
+    dispatch({ type: "INPUT", value: event.target.value });
   };
 
   /**
@@ -25,19 +42,18 @@ const useInput = (validateValue) => {
    * @param {Event} event 
    */
   const handleInputBlur = (event) => {
-    setIsTouched(true);
+    dispatch({ type: "BLUR" });
   }
 
   /**
    * Resets the statue values
    */
   const reset = () => {
-    setEnteredValue("");
-    setIsTouched(false);
+    dispatch({ type: "RESET" });
   }
 
   return {
-    value: enteredValue,
+    value: inputState.value,
     isValid: valueIsValid,
     hasError: hasError,
     handleValueChange,
