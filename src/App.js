@@ -24,7 +24,7 @@ function App() {
       <Header onShowCart={handleShowCart}/>
       <main>
         <Meals />
-      </main>CartProvider
+      </main>
     </CartProvider>
   );
 }
